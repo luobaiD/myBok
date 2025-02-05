@@ -1,0 +1,10 @@
+# 忽略 node_modules
+node_modules/
+
+# 忽略环境变量文件（如有）
+.env
+.env.local
+
+# 忽略日志、调试文件
+*.log
+.DS_Store
