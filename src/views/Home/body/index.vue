@@ -1,5 +1,6 @@
 <template>
   <div class="whole">
+    <!-- 轮播图 -->
     <div class="show-box" ref="showBoxRef">
       <div class="block text-center">
         <el-carousel motion-blur>
@@ -9,7 +10,9 @@
         </el-carousel>
       </div>
     </div>
+    <!-- 内容主体 -->
     <div class="tag-box">
+      <!-- 左侧帖子 -->
       <div class="tag-post">
         <!-- 公告 -->
         <div class="tap-post-announcement">
@@ -50,6 +53,7 @@
           </div>
         </ul>
       </div>
+      <!-- 右侧标签 -->
       <div class="tag-profile">
         <!-- 个人数据 -->
         <el-card :style="{width: '100%',marginTop: '50px'}" shadow="always" class="profile-one">
@@ -114,26 +118,74 @@
           </h4>
           <div style="font-size: 12px; margin-top: 10px;">
             <span>手机号:</span>
-            <span>{{ 16635024292 }}</span>
+            <span>{{ 1635024292 }}</span>
           </div>
           <div style="font-size: 12px; margin-top: 5px;">
             <span>邮箱:</span>
-            <span style="margin-left: 12px;">{{ '1470706154@qq.com' }}</span>
+            <span style="margin-left: 12px;">{{ '147076154@qq.com' }}</span>
           </div>
           <div style="font-size: 12px; margin-top: 5px;">
             <span>QQ:</span>
-            <span style="margin-left: 17px;">{{ 3253839805 }}</span>
+            <span style="margin-left: 17px;">{{ 325339805 }}</span>
           </div>
         </el-card>
       </div>
+      <!-- 右侧功能 -->
+      <div class="side-feature" v-show="isScrolled">
+        <div class="side-feature-box shezhi"><el-icon><Setting /></el-icon></div>
+        <div class="side-feature-box" @click="showCenter"><el-icon><Edit /></el-icon></div>
+        <div class="side-feature-box" @click="scrollToTop"><el-icon><Top /></el-icon></div>
+      </div>
+      <!-- 居中建议设置框 -->
+      <div class="Settings-feedback" v-show="isSetting">
+        <div class="Settings-box">
+          <div class="title">反馈</div>
+          <div class="type">
+            <div class="type-item">反馈类型</div>
+            <div class="type-content">
+              <el-radio-group v-model="feedbackData.type">
+                <el-radio value="1" size="small">提交你的需求及建议</el-radio>
+                <el-radio value="2" size="small">提交你所遇到的bug</el-radio>
+              </el-radio-group>
+            </div>
+          </div>
+          <div class="talk">
+            <div class="talk-item">联系方式</div>
+            <div class="input">
+              <el-input v-model="feedbackData.talk" style="width: 100%;font-size: 13px;" placeholder="请输入您的任意联系方式" clearable/>
+            </div>
+          </div>
+          <div class="text">
+            <div class="text-item">反馈内容</div>
+            <div class="input">
+              <el-input v-model="feedbackData.text" style="width: 100%;height: 100px;font-size: 13px;" placeholder="请输入您的建议" type="textarea" :rows="4" clearable/>
+            </div>
+          </div>
+          <div class="bug">
+            <div class="bug-item">上传bug</div>
+            <div class="input">
+              <el-input v-model="feedbackData.bugText" style="width: 100%;font-size: 13px;" placeholder="请简单叙述您遇到的bug" clearable/>
+              <div class="upload">
+                <div class="imgORvideo" ref="mediaPreview">
+                  <!-- 预留图片或视频位置 -->
+                </div>
+                <el-button type="primary" @click="handleUpload">上传图片或视频</el-button>
+              </div>
+            </div>
+          </div>
+          <div class="button">
+            <button class="btn2" @click="cancelCenter">取消</button>
+            <button class="btn1" @click="verifySubmit">确认</button>
+          </div>
+        </div>
+      </div>
     </div>
-
-
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref,computed, onMounted,onBeforeUnmount } from 'vue';
+import { ElMessage } from 'element-plus';
 
 const text = ref('哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈')
 let showBox = ref([
@@ -145,10 +197,7 @@ let showBox = ref([
   },
 ]);
 
-//#region
-/**
- * 帖子下滑加载数据及方法
- */
+//#region element-plus 无限滚动
 const count = ref(10)
 const loading = ref(false)
 const noMore = computed(() => count.value >= 5)
@@ -162,10 +211,11 @@ const load = () => {
 }
 //#endregion
 
-
 //#region 轮播图滚轮向下磁吸效果
 const showBoxRef = ref<HTMLElement | null>(null);
 let isScrolling = false;
+// 标记是否已经跳过轮播图
+const isScrolled = ref(false);
 
 const handleWheel = (event: WheelEvent) => {
   if (isScrolling) return;
@@ -183,20 +233,133 @@ const handleWheel = (event: WheelEvent) => {
     // 1秒后重置滚动状态（根据实际动画时间调整）
     setTimeout(() => {
       isScrolling = false;
-    }, 1000);
+      // 标记已经跳过轮播图
+      isScrolled.value = true;
+    }, 700);
   }
 };
 //#endregion
 
-// 关注按钮
+//#region 回到页面顶部
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+//#endregion
+
+//#region 监测页面滚动情况，isScrolled决定side-feature的显示与隐藏
+const handleScroll = () => {
+  const scrollTop = window.scrollY;
+  const windowHeight = window.innerHeight/ 2;
+  // 当滚动距离超过窗口高度时，isScrolled 为 true
+  isScrolled.value = scrollTop >= windowHeight;
+};
+//#endregion
+
+//#region 关注按钮
 const myfollow = () => {
   
 }
+//#endregion
 
+//#region 反馈数据
+const feedbackData = ref({
+  type:'1',
+  talk:'',
+  text:'',
+  bugText:''
+});
+// 引用预留位置的DOM元素
+const mediaPreview = ref<HTMLDivElement | null>(null);
+let selectedFile: File | null = null;
+
+// 处理上传的函数
+const handleUpload = () => {
+  // 创建一个文件选择输入元素
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*, video/*'; // 限制选择的文件类型为图片或视频
+  input.multiple = false; // 不允许选择多个文件
+
+  // 监听文件选择事件
+  input.addEventListener('change', (event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+      const file = target.files[0];
+      const fileType = file.type;
+
+      // 判断文件类型是否为图片或视频
+      if (fileType.startsWith('image/') || fileType.startsWith('video/')) {
+        selectedFile = file; // 保存选中的文件
+
+        // 创建一个新的元素来显示预览
+        const previewElement = document.createElement(fileType.startsWith('image/') ? 'img' : 'video');
+        previewElement.style.width = '100%';
+        previewElement.style.height = 'auto';
+
+        if (fileType.startsWith('image/')) {
+          (previewElement as HTMLImageElement).src = URL.createObjectURL(file);
+        } else if (fileType.startsWith('video/')) {
+          (previewElement as HTMLVideoElement).src = URL.createObjectURL(file);
+          (previewElement as HTMLVideoElement).controls = true;
+        }
+
+        // 清空预留位置的内容
+        if (mediaPreview.value) {
+          mediaPreview.value.innerHTML = '';
+          // 将预览元素添加到预留位置
+          mediaPreview.value.appendChild(previewElement);
+        }
+      } else {
+        alert('请选择图片或视频文件');
+      }
+    }
+  });
+
+  // 触发文件选择对话框
+  input.click();
+}
+//#endregion
+
+//#region 设置框，反馈框
+const isSetting = ref(false);
+// 显示反馈框
+const showCenter = () => {
+  isSetting.value = true;
+  document.body.style.overflow = 'hidden';
+}
+// 取消反馈框
+const cancelCenter = () => {
+  isSetting.value = false;
+  document.body.style.overflow = 'auto';
+}
+// 确认提交反馈
+const verifySubmit = () => {
+  isSetting.value = false;
+  document.body.style.overflow = 'auto';
+  console.log(feedbackData.value, selectedFile);
+  // 判断反馈内容或者bug内容是否为空
+  if (!feedbackData.value.text && !feedbackData.value.bugText) {
+    ElMessage.warning('反馈内容或bug内容不能为空');
+    return;
+  }
+  ElMessage.success('提交成功');
+  // 清空数据
+  feedbackData.value = {
+    type:'1',
+    talk:'',
+    text:'',
+    bugText:''
+  }
+}
+//#endregion
 onMounted(() => {
   if (showBoxRef.value) {
     showBoxRef.value.addEventListener('wheel', handleWheel, { passive: false });
   }
+  window.addEventListener('scroll', handleScroll);
 });
 </script>
 
@@ -370,12 +533,203 @@ onMounted(() => {
             display: flex;
             justify-content: center;
             align-items: center;
+            :deep(.el-icon){
+              font-size: 20px;
+            }
           }
         }
         .profile-follow:hover{
           .fllow-bac{
            width: 100%;
            height: 100%;
+          }
+        }
+      }
+    }
+    .side-feature{
+      position: fixed;
+      width: 30px;
+      height: 100px;
+      bottom: 20%;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      .side-feature-box{
+        width: 100%;
+        color: white;
+        font-size: 17px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative; // 相对定位，为伪元素提供定位参考
+        overflow: hidden; // 避免伪元素溢出影响布局
+        background-color: rgb(73, 177, 245);
+        margin-bottom: 3px; // 子盒子之间的间距
+
+        // 使用伪元素撑开高度
+        &::before {
+          content: '';
+          display: block;
+          padding-top: 100%; // 伪元素的 padding-top 等于子盒子的宽度
+        }
+      }
+      .shezhi{
+        :deep(.el-icon){
+          animation: changeDeg 2s linear infinite;
+        }
+      }
+      @keyframes changeDeg {
+        0% {
+          rotate: 0deg;
+        }
+        100% {
+          rotate: 360deg;
+        }
+      }
+    }
+    .Settings-feedback{
+      width: 100%;
+      height: 100%;
+      background-color: rgba(129, 124, 124, 0.658);
+      position: absolute;
+      top: 100vh;
+      left: 0;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .Settings-box{
+        width: 600px;
+        height: 500px;
+        background-color: rgb(255, 255, 255);
+        border-radius: 5px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        .title{
+          width: 100%;
+          height: 50px;
+          font-size: 18px;
+          font-weight: 500;
+        }
+        .type{
+          width: 100%;
+          height: 50px;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          margin-top: 10px;
+          .type-item{
+            width: 15%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+          }
+        }
+        .talk{
+          width: 100%;
+          height: 50px;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          .talk-item{
+            width: 15%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+          }
+          .input{
+            width: 100%;
+            display: flex;
+            align-items: center;
+          }
+        }
+        .text{
+          width: 100%;
+          height: 100px;
+          font-size: 13px;
+          display: flex;
+          margin-top: 5px;
+          .text-item{
+            width: 15%;
+            height: 30px;
+            display: flex;
+            align-items: center;
+          }
+          .input{
+            width: 100%;
+            height: 100%;
+            display: flex;
+          }
+        }
+        .bug{
+          width: 100%;
+          height: 100px;
+          font-size: 13px;
+          display: flex;
+          margin-top: 5px;
+          .bug-item{
+            width: 15%;
+            height: 30px;
+            display: flex;
+            align-items: center;
+          }
+          .input{
+            width: 100%;
+            .upload{
+              width: 100%;
+              margin-top: 10px;
+              display: flex;
+              .imgORvideo{
+                width: 100px;
+                height: 100px;
+                background-color: rgb(210, 210, 210);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                img{
+                  width: 100%;
+                  height: 100%;
+                }
+                video{
+                  width: 100%;
+                  height: 100%;
+                }
+              }
+              :deep(.el-button){
+                margin-left: 20px;
+              }
+            }
+          }
+        }
+        .button{
+          width: 100%;
+          height: 30px;
+          margin-top: 50px;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          button{
+            width: 70px;
+            height: 30px;
+            margin-left: 10px;
+            border-radius: 3px;
+            cursor: pointer;
+          }
+          .btn2{
+            background-color: #fff;
+            border: 1px solid #409eff;
+          }
+          .btn2:hover{
+            background-color: #e4f0fc;
+          }
+          .btn1{
+            color: azure;
+            background-color: #409eff;
+            border: none;
+          }
+          .btn1:hover{
+            background-color: #8fc6fe;
           }
         }
       }
