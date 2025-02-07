@@ -117,7 +117,7 @@
             <span style="margin-left: 10px;">联系方式</span>
           </h4>
           <div style="font-size: 12px; margin-top: 10px;">
-            <span>手机号:</span>
+            <span>微信号:</span>
             <span>{{ 1635024292 }}</span>
           </div>
           <div style="font-size: 12px; margin-top: 5px;">
@@ -334,6 +334,13 @@ const showCenter = () => {
 const cancelCenter = () => {
   isSetting.value = false;
   document.body.style.overflow = 'auto';
+  // 清空数据
+  feedbackData.value = {
+    type:'1',
+    talk:'',
+    text:'',
+    bugText:''
+  }
 }
 // 确认提交反馈
 const verifySubmit = () => {

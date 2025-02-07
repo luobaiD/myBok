@@ -1,12 +1,16 @@
 <template>
-  <div class="title">
+  <div class="title" ref="scrollableDiv" :style="{color: titleColor,backgroundColor: titleBackground}">
       <!-- logo -->
       <div class="title-name">
         <p>欢迎使用</p>
       </div>
       <div class="title-Feature">
+        <!-- 搜索框 -->
+        <div class="title-search" style="margin-right: 20px;">
+          <Search></Search>
+        </div>
         <!-- 菜单 -->
-        <div class="title-tag">
+        <div class="title-tag" :style="{color: titleColor}">
           <NavMenu v-for="(item,index) in shuzu" :key="index" :shuju="item" @click="item.fun"/>
         </div>
         <!-- 头像 -->
@@ -20,17 +24,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { UserFilled } from '@element-plus/icons-vue'
-import  NavMenu  from '@/components/tools/NavMenu.vue'
+import  NavMenu  from '@/components/tools/NavMenu.vue';
+import Search from '@/components/tools/Search.vue';
 
 const shuzu = ref([
-  {
-    title: '搜索',
-    icon: 'Search',
-    path: '/search',
-    fun: () => {
-      console.log('点击了搜索')
-    }
-  },
   {
     title: '留言',
     icon: 'Message',
@@ -78,12 +75,48 @@ const shuzu = ref([
   }
 ])
 
+
+//#region 通过滚动距离改变title的颜色和背景颜色
+let titleColor = ref('#fff')
+let titleBackground = ref('rgba(255, 255, 255, 0)')
+const isScrollTop = ref(false)
+
+const handleScroll = () => {
+  const scrollTop = window.scrollY;
+  // 当滚动距离超过一定距离时，isScrolled 为 true
+  isScrollTop.value = scrollTop >= 20;
+  // 改变顶部菜单文字颜色和背景颜色
+  titleColor.value = isScrollTop.value ? '#000' : '#fff';
+  titleBackground.value = isScrollTop.value? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0)';
+};
+//#endregion
+
+//#region 通过滚动显示和隐藏title
+const scrollableDiv = ref<HTMLElement | null>(null);
+let lastScrollTop = 0;
+window.addEventListener('scroll', function() {
+    let currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if(scrollableDiv.value == null) return
+    if (currentScrollTop > lastScrollTop) {
+        scrollableDiv.value.style.display = 'none';
+    } else if (currentScrollTop < lastScrollTop) {
+        scrollableDiv.value.style.display = 'flex';
+    }
+    lastScrollTop = currentScrollTop;
+});
+//#endregion
+
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll); 
+})
 </script>
 
 <style scoped lang="scss">
   .title{
     width: 100%;
     height: 50px;
+    color: #fff;
     // background-color: rgb(255, 255, 255, 0.6);
     background-color: none;
     background-clip: content-box;
@@ -93,7 +126,6 @@ const shuzu = ref([
     user-select: none;
     .title-name{
       font-size: 23px;
-      color: #ffffff;
       font-weight: bold;
       font-family: 'sans-serif';
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -127,7 +159,13 @@ const shuzu = ref([
         font-family:'sans-serif';
       }
       .title-avatar{
+        width: 30px;
+        height: 30px;
         margin-right: 30px;
+        :deep(.el-avatar){
+          width: 30px;
+          height: 30px;
+        }
       }
     }
   }

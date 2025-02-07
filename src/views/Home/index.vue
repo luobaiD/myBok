@@ -16,10 +16,8 @@ import TitleFeature from './titleFeature/index.vue';
 import BodyFeature from './body/index.vue'
 import { interlayer } from '@/interlayer';
 
-//监测页面是否下拉或上移
-window.addEventListener('scroll', function() {
-  console.log('页面正在滚动');
-});
+
+
 </script>
 
 <style scoped lang="scss">
@@ -33,7 +31,7 @@ window.addEventListener('scroll', function() {
     .title{
       width: 100%;
       height: 50px;
-      position: absolute;
+      position: fixed;
       top: 0;
       z-index: 10;
     }
