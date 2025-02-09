@@ -1,5 +1,5 @@
 <template>
-  <div class="title" ref="scrollableDiv" :style="{color: titleColor,backgroundColor: titleBackground}">
+  <div class="title animate__animated animate__fadeInDown" ref="scrollableDiv" :style="{color: titleColor,backgroundColor: titleBackground}">
       <!-- logo -->
       <div class="title-name">
         <p>欢迎使用</p>
@@ -24,8 +24,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { UserFilled } from '@element-plus/icons-vue'
+import router from '@/router/index';
 import  NavMenu  from '@/components/tools/NavMenu.vue';
 import Search from '@/components/tools/Search.vue';
+import 'animate.css';
+
 
 const shuzu = ref([
   {
@@ -71,6 +74,7 @@ const shuzu = ref([
     path: '/',
     fun: () => {
       console.log('点击了返回')
+      router.push('/home')
     }
   }
 ])
@@ -115,6 +119,7 @@ onMounted(() => {
 <style scoped lang="scss">
   .title{
     width: 100%;
+    min-width: 850px;
     height: 50px;
     color: #fff;
     // background-color: rgb(255, 255, 255, 0.6);
@@ -137,7 +142,6 @@ onMounted(() => {
       cursor: pointer;
     }
     .title-Feature{
-      width: 100px;
       height: 100%;
       display: flex;
       justify-content: flex-end;
@@ -145,7 +149,6 @@ onMounted(() => {
       width: 50%;
       font-size: 15px;
       color: #000000;
-      // background-color: red;
       font-family: 'sans-serif';
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
       font-style: italic;
@@ -159,12 +162,12 @@ onMounted(() => {
         font-family:'sans-serif';
       }
       .title-avatar{
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
         margin-right: 30px;
         :deep(.el-avatar){
-          width: 30px;
-          height: 30px;
+          width:35px;
+          height: 35px;
         }
       }
     }

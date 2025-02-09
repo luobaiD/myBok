@@ -4,7 +4,7 @@
       <TitleFeature />
     </div>
     <div class="home-body">
-      <BodyFeature />
+       <RouterView />
     </div>
   </div>
 
@@ -13,8 +13,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import TitleFeature from './titleFeature/index.vue';
-import BodyFeature from './body/index.vue'
-import { interlayer } from '@/interlayer';
+import { RouterView } from 'vue-router';
 
 
 
@@ -23,7 +22,7 @@ import { interlayer } from '@/interlayer';
 <style scoped lang="scss">
   .home-box{
     width: 100%;
-    height: 100%;
+    height: 100vh;
     background: linear-gradient(to right, rgba(157, 157, 240, 0.693),rgba(244, 174, 186, 0.764));
     display: flex;
     flex-direction: column;
@@ -37,6 +36,7 @@ import { interlayer } from '@/interlayer';
     }
     .home-body{
       max-width: 100%;
+      height: 100%;
     }
   }
 </style>

@@ -92,6 +92,7 @@ const props = defineProps({
       .menu-Options{
         width: 100%;
         height: 30px;
+        color: black;
         // padding: 0px 10px;
         display: flex;
         justify-content: center;

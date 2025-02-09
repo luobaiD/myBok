@@ -5,7 +5,6 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'login',
       component: () => import('../views/Login/index.vue'),
       children: [
         {
@@ -17,12 +16,21 @@ const router = createRouter({
     },
     {
       path: '/home',
-      name: 'home',
       component: () => import('../views/Home/index.vue'),
+      children: [
+        {
+          path: '',
+          name: 'home-body',
+          component: () => import('../views/Home/body/index.vue'),
+        },{
+          path: '/home-content/:id',
+          name: 'home-content',
+          component: () => import('../views/Home/body/content.vue'),
+        }
+      ]
     },
     {
       path: '/coge',
-      name: 'coge',
       component: () => import('../views/Coge/index.vue'),
       children: [
         {

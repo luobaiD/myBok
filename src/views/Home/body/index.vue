@@ -1,7 +1,7 @@
 <template>
   <div class="whole">
     <!-- 轮播图 -->
-    <div class="show-box" ref="showBoxRef">
+    <div class="show-box animate__animated animate__fadeInDown" ref="showBoxRef">
       <div class="block text-center">
         <el-carousel motion-blur>
           <el-carousel-item  v-for="(item, index) in showBox"  :key="index">
@@ -24,7 +24,7 @@
         </div>
         <!-- 帖子 -->
         <ul v-infinite-scroll="load" class="infinite-list" style="overflow: auto">
-          <div class="post-data" v-for="(item,index) in 10" :key="index">
+          <div class="post-data" v-for="(item,index) in 10" :key="index" @click="infiniteRoute(item)">
             <el-card :style="{width: '100%'}" shadow="hover">
               <!-- 帖子图片 -->
               <div class="post-img" style="">
@@ -180,12 +180,18 @@
         </div>
       </div>
     </div>
+    <!-- 预留的结尾部分(暂无功能，高度为0) -->
+    <div class="tag-footer">
+
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref,computed, onMounted,onBeforeUnmount } from 'vue';
 import { ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
+import 'animate.css';
 
 const text = ref('哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈')
 let showBox = ref([
@@ -196,6 +202,7 @@ let showBox = ref([
     img: new URL('../../../assets/img/hutao.jpeg', import.meta.url).href
   },
 ]);
+const router = useRouter();
 
 //#region element-plus 无限滚动
 const count = ref(10)
@@ -264,6 +271,13 @@ const myfollow = () => {
 }
 //#endregion
 
+//#region 帖子跳转
+const infiniteRoute = (item:any) => {
+  // 跳转到指定路由
+  console.log('/login/sign');
+  router.push('/home-content/item');
+}
+//#endregion
 //#region 反馈数据
 const feedbackData = ref({
   type:'1',
@@ -363,6 +377,7 @@ const verifySubmit = () => {
 }
 //#endregion
 onMounted(() => {
+
   if (showBoxRef.value) {
     showBoxRef.value.addEventListener('wheel', handleWheel, { passive: false });
   }
@@ -741,6 +756,12 @@ onMounted(() => {
         }
       }
     }
+  }
+
+ .tag-footer{
+    width: 100%;
+    height: 0px;
+    background-color: red;
   }
 }
 
