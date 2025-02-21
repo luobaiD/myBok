@@ -12,9 +12,9 @@ const getToken = () => {
 const http = axios.create({
   baseURL: import.meta.env.VITE_API_NODE_BASE_URL,
   headers: {
-    'token': getToken(), 
+    'token': '', 
   },
-  timeout: 10000, // 请求超时时间
+  timeout: 10000 * 60 *60, // 请求超时时间
 });
 
 // 请求拦截器
@@ -45,6 +45,7 @@ http.interceptors.response.use(
          throw new Error(response.data.msg);
         ;
       }
+    console.log(response.data.data);
     localStorage.setItem("token",response.data.data.token);
     return response.data.data;
   },
