@@ -45,13 +45,27 @@
   /**
    * 登录
    */
-  const handleLogin =async () => {
-    try {    
-      const data =await postlogin({ email:userData.value[0].content, password:userData.value[1].content})
-      
-    }catch (error) {
-      console.log(error);
-    }
+  const handleLogin =async () => { 
+    const data = await postlogin({ email:userData.value[0].content, password:userData.value[1].content}).then(res => {
+      ElMessage({
+        showClose: true,
+        message:  `登录成功`,
+        type:'success',
+        center: true,
+        duration: 2000
+      })
+      localStorage.setItem('token', res.data.token)
+      router.push('/') 
+    }).catch(err => {
+      ElMessage({
+        showClose: true,
+        message:  `登录失败`,
+        type:'error',
+        center: true,
+        duration: 2000
+      })
+      console.log(err)
+    })
   }
   /**
    * 游客

@@ -121,37 +121,25 @@ const handleRegister = async () => {
       a++
     }
     // 调用注册接口
-    const response = register(data.value);
-    // 判断注册是否成功
-    try {
-      const response = await register(data.value); // 等待注册请求返回结果
-      if (response) { // 判断请求是否成功
-        ElMessage({
-          showClose: true,
-          message: '注册成功',
-          type: 'success',
-          center: true,
-          duration: 2000
-        })
-        // 可以在这里进行跳转等操作
-      } else {
-        ElMessage({
-          showClose: true,
-          message: '注册失败，请重新尝试',
-          type: 'error',
-          center: true,
-          duration: 2000
-        })
-      }
-    } catch (error) {
+    const response = register(data.value).then(res => {
       ElMessage({
         showClose: true,
-        message: '注册失败，请重新尝试',
-        type: 'error',
+        message:  `注册成功`,
+        type:'success',
         center: true,
         duration: 2000
       })
-    }
+      router.push('/login')
+    }).catch(err => {
+      ElMessage({
+        showClose: true,
+        message:  `注册失败`,
+        type:'error',
+        center: true,
+        duration: 2000
+      })
+    })
+    
     
   }
 }
