@@ -1,28 +1,52 @@
 // src/api/base.ts
 import axios from 'axios';
 
+const getToken = () => {
+  if (!localStorage.getItem("token")) {
+    return ''
+  }else{
+    return localStorage.getItem("token");
+  }
+};
 // 创建一个 axios 实例
-const instance = axios.create({
-  baseURL: import.meta.env.liu200222, // 假设你在 .env 文件中配置了 API 的基础 URL
+const http = axios.create({
+  baseURL: import.meta.env.VITE_API_NODE_BASE_URL,
+  headers: {
+    'token': getToken(), 
+  },
   timeout: 10000, // 请求超时时间
 });
 
 // 请求拦截器
-instance.interceptors.request.use(
-  (config) => {
+http.interceptors.request.use(
+  async (config:any) => {
     // 可以在这里添加一些请求前的处理，如添加请求头
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    return Promise.reject(`请求错误: ${error}`);
   }
 );
 
 // 响应拦截器
-instance.interceptors.response.use(
+http.interceptors.response.use(
   (response) => {
     // 可以在这里对响应数据进行一些处理
-    return response.data;
+      if(response.status!==200){
+        return Promise.reject("http错误");
+      }
+
+      let code = response.data.code;
+      if(code === 401 || code === 40104 ||code === 40105){
+        throw new Error("登录过期");
+      }
+
+      if(response.data.code!==200){
+         throw new Error(response.data.msg);
+        ;
+      }
+    localStorage.setItem("token",response.data.data.token);
+    return response.data.data;
   },
   (error) => {
     // 可以在这里对错误进行统一处理
@@ -30,4 +54,4 @@ instance.interceptors.response.use(
   }
 );
 
-export default instance;
+export default http;

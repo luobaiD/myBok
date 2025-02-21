@@ -14,7 +14,7 @@
           <NavMenu v-for="(item,index) in shuzu" :key="index" :shuju="item" @click="item.fun"/>
         </div>
         <!-- 头像 -->
-        <div class="title-avatar">
+        <div class="title-avatar" @click="router.push('/login')">
           <el-avatar :icon="UserFilled" />
         </div>
       </div>

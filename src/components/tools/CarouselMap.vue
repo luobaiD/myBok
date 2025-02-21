@@ -28,7 +28,12 @@ const items = ref([
   }
 ])
 
-
+const prevSlide = () => {
+  console.log('返回上一页');
+}
+const nextSlide = () => {
+  console.log('下一页');
+}
 
 // 点击直接跳过整个轮播图展示页面
 const scrollDown = () => {

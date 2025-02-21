@@ -16,6 +16,10 @@
         </div>
       </div>
     </div>
+
+    <div class="quit" @click="router.push('/login')">
+      <p>返回登录</p>
+    </div>
   </div>
 </template>
 
@@ -136,6 +140,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
     // 父级标签集
     .tag{
       width: 100%;
@@ -195,6 +200,21 @@ onMounted(() => {
             background-color: rgb(252, 239, 239);
           }
         }
+      }
+    }
+    .quit{
+      width: 100%;
+      height: 50px;
+      background-color: rgb(12, 139, 250);
+      position: absolute;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      p{
+        font-size: 19px;
+        color: #fff;
       }
     }
   }
