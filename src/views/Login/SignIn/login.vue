@@ -32,11 +32,13 @@
   const userData = ref([
     {
       content: '',
-      name: '账号'
+      name: '账号',
+      type: 'email'
     },
     {
       content: '',
-      name: '密码'
+      name: '密码',
+      type: 'password'
     }
   ]) 
 
@@ -45,27 +47,52 @@
   /**
    * 登录
    */
-  const handleLogin =async () => { 
-    const data = await postlogin({ email:userData.value[0].content, password:userData.value[1].content}).then(res => {
+  const handleLogin =async () => {
+    const idpassword = {
+      email: '',
+      password: ''
+    }
+    // 检查是否有数据未填写
+    for(let i=0;i < userData.value.length;i++){
+      if(!userData.value[i].content){
+        ElMessage({
+          showClose: true,
+          message:  `请输入${userData.value[i].name}`,
+          type:'error',
+          center: true,
+          duration: 2000
+        })
+        return
+      }
+      idpassword[userData.value[i].type as keyof typeof idpassword] = userData.value[i].content
+    } 
+    try {
+      // 调用 postlogin 函数进行登录请求
+      const res:any = await postlogin(idpassword);
+      if(res.code == 200){
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('account', res.data.userInfo.email)
+        ElMessage({
+          showClose: true,
+          message: '登录成功',
+          type: 'success', 
+          center: true,
+          duration: 2000
+        })
+        router.push('/') 
+      }
+      
+    } catch (error) {
+      // 捕获并处理异常，给出错误提示
+      console.log(error);
       ElMessage({
         showClose: true,
-        message:  `登录成功`,
-        type:'success',
+        message: '登录过程中出现错误，请稍后重试',
+        type: 'error',
         center: true,
-        duration: 2000
-      })
-      localStorage.setItem('token', res.data.token)
-      router.push('/') 
-    }).catch(err => {
-      ElMessage({
-        showClose: true,
-        message:  `登录失败`,
-        type:'error',
-        center: true,
-        duration: 2000
-      })
-      console.log(err)
-    })
+        duration: 3000
+      });
+    }
   }
   /**
    * 游客

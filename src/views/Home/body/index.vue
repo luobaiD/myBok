@@ -23,11 +23,15 @@
           </el-card>
         </div>
         <!-- 帖子 -->
-        <ul v-infinite-scroll="load" class="infinite-list" style="overflow: auto">
-          <div class="post-data" v-for="(item,index) in 10" :key="index" @click="infiniteRoute(item)">
+        <ul v-infinite-scroll="load" 
+            class="infinite-list-wrapper" 
+            :infinite-scroll-disabled="disabled" 
+            infinite-scroll-delay="2000"
+            style="overflow: auto">
+          <div class="post-data" v-for="(item,index) in 100" :key="index" @click="infiniteRoute(item)">
             <el-card :style="{width: '100%'}" shadow="hover">
               <!-- 帖子图片 -->
-              <div class="post-img" style="">
+              <div class="post-img" >
                 <img src="@/assets/Logo/Html.png" alt="" style="width: 100%;height: 100%;">
               </div>
               <!-- 帖子内容 -->
@@ -50,6 +54,10 @@
                 </div>
               </div>
             </el-card>
+          </div>
+          <div class="post-state"> 
+            <div v-if="loading">加载中....</div>
+            <div v-if="noMore">已经到底了</div>
           </div>
         </ul>
       </div>
@@ -193,7 +201,9 @@ import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import 'animate.css';
 
+const router = useRouter();
 const text = ref('哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈')
+// 轮播图数据
 let showBox = ref([
   {
     img: 'https://static.hehuhu.com.cn/1642481190129.jpg'
@@ -202,10 +212,10 @@ let showBox = ref([
     img: new URL('../../../assets/img/hutao.jpeg', import.meta.url).href
   },
 ]);
-const router = useRouter();
+
 
 //#region element-plus 无限滚动
-const count = ref(10)
+const count = ref(5)
 const loading = ref(false)
 const noMore = computed(() => count.value >= 5)
 const disabled = computed(() => loading.value || noMore.value)
@@ -267,17 +277,20 @@ const handleScroll = () => {
 
 //#region 关注按钮
 const myfollow = () => {
-  
+  console.log('关注');
 }
 //#endregion
 
 //#region 帖子跳转
 const infiniteRoute = (item:any) => {
   // 跳转到指定路由
-  console.log('/login/sign');
   router.push('/home-content/item');
+  /**
+   * 调用接口请求数据
+   */
 }
 //#endregion
+
 //#region 反馈数据
 const feedbackData = ref({
   type:'1',
@@ -337,52 +350,57 @@ const handleUpload = () => {
 }
 //#endregion
 
-//#region 设置框，反馈框
-const isSetting = ref(false);
-// 显示反馈框
-const showCenter = () => {
-  isSetting.value = true;
-  document.body.style.overflow = 'hidden';
-}
-// 取消反馈框
-const cancelCenter = () => {
-  isSetting.value = false;
-  document.body.style.overflow = 'auto';
-  // 清空数据
-  feedbackData.value = {
-    type:'1',
-    talk:'',
-    text:'',
-    bugText:''
+//#region 反馈框
+  const isSetting = ref(false);
+  // 显示反馈框
+  const showCenter = () => {
+    isSetting.value = true;
+    document.body.style.overflow = 'hidden';
   }
-}
-// 确认提交反馈
-const verifySubmit = () => {
-  isSetting.value = false;
-  document.body.style.overflow = 'auto';
-  console.log(feedbackData.value, selectedFile);
-  // 判断反馈内容或者bug内容是否为空
-  if (!feedbackData.value.text && !feedbackData.value.bugText) {
-    ElMessage.warning('反馈内容或bug内容不能为空');
-    return;
+  // 取消反馈框
+  const cancelCenter = () => {
+    isSetting.value = false;
+    document.body.style.overflow = 'auto';
+    // 清空数据
+    feedbackData.value = {
+      type:'1',
+      talk:'',
+      text:'',
+      bugText:''
+    }
   }
-  ElMessage.success('提交成功');
-  // 清空数据
-  feedbackData.value = {
-    type:'1',
-    talk:'',
-    text:'',
-    bugText:''
+  // 确认提交反馈
+  const verifySubmit = () => {
+    isSetting.value = false;
+    document.body.style.overflow = 'auto';
+    console.log(feedbackData.value, selectedFile);
+    // 判断反馈内容或者bug内容是否为空
+    if (!feedbackData.value.text && !feedbackData.value.bugText) {
+      ElMessage.warning('反馈内容或bug内容不能为空');
+      return;
+    }
+    ElMessage.success('提交成功');
+    // 清空数据
+    feedbackData.value = {
+      type:'1',
+      talk:'',
+      text:'',
+      bugText:''
+    }
   }
-}
 //#endregion
 onMounted(() => {
-
   if (showBoxRef.value) {
     showBoxRef.value.addEventListener('wheel', handleWheel, { passive: false });
   }
   window.addEventListener('scroll', handleScroll);
 });
+onBeforeUnmount(() => {
+  if (showBoxRef.value) {
+    showBoxRef.value.removeEventListener('wheel', handleWheel);
+  } 
+  window.removeEventListener('scroll', handleScroll);
+})
 </script>
 
 <style scoped lang="scss">
@@ -429,7 +447,7 @@ onMounted(() => {
           }
         }
       }
-      .infinite-list{
+      .infinite-list-wrapper{
         width: 100%;
         height: 900px;
         padding: 0;
@@ -452,7 +470,14 @@ onMounted(() => {
             .post-img{
               width: 200px;
               height: 200px;
-              background-color: red;
+              overflow: hidden;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              img{
+                object-fit: cover;
+                transition: transform 0.3s ease-in-out;
+              }
             }
             .post-content{
               width: 540px;
@@ -509,10 +534,21 @@ onMounted(() => {
           cursor: pointer;
           :deep(.el-card__body){
             .post-img{
-              width: 220px;
-                height: 220px;
+              img{
+                transform: scale(1.1) translateY(10px);
+                
+              }
             }
           }
+        }
+        .post-state{
+          width: 100%;
+          height: 30px;
+          font-size: 20px;
+          font-family: SimSun;
+          border-top: 1px solid black;
+          display: flex;
+          justify-content: center;
         }
       }
      

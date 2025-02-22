@@ -12,7 +12,7 @@ const getToken = () => {
 const http = axios.create({
   baseURL: import.meta.env.VITE_API_NODE_BASE_URL,
   headers: {
-    'token': '', 
+    'token': getToken(), 
   },
   timeout: 10000 * 60 *60, // 请求超时时间
 });
@@ -41,13 +41,12 @@ http.interceptors.response.use(
         throw new Error("登录过期");
       }
 
-      if(response.data.code!==200){
+      if(code!==200){
          throw new Error(response.data.msg);
         ;
       }
-    console.log(response.data.data);
-    localStorage.setItem("token",response.data.data.token);
-    return response.data.data;
+    console.log(response.data);
+    return response.data;
   },
   (error) => {
     // 可以在这里对错误进行统一处理

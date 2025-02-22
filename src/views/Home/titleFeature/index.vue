@@ -74,7 +74,7 @@ const shuzu = ref([
     path: '/',
     fun: () => {
       console.log('点击了返回')
-      router.push('/home')
+      router.push('/')
     }
   }
 ])
