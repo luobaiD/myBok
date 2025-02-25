@@ -2,7 +2,7 @@
   <div class="title animate__animated animate__fadeInDown" ref="scrollableDiv" :style="{color: titleColor,backgroundColor: titleBackground}">
       <!-- logo -->
       <div class="title-name">
-        <p>欢迎使用</p>
+        <p>{{ userStore.webData.webName }}</p>
       </div>
       <div class="title-Feature">
         <!-- 搜索框 -->
@@ -11,11 +11,7 @@
         </div>
         <!-- 菜单 -->
         <div class="title-tag" :style="{color: titleColor}">
-          <NavMenu v-for="(item,index) in shuzu" :key="index" :shuju="item" @click="item.fun"/>
-        </div>
-        <!-- 头像 -->
-        <div class="title-avatar" @click="router.push('/login')">
-          <el-avatar :icon="UserFilled" />
+          <NavMenu v-for="(item,index) in titleData" :key="index" :shuju="item" @click="item.fun"/>
         </div>
       </div>
   </div>
@@ -28,57 +24,12 @@ import router from '@/router/index';
 import  NavMenu  from '@/components/tools/NavMenu.vue';
 import Search from '@/components/tools/Search.vue';
 import 'animate.css';
+import { useUserStore } from '@/stores/userStore/myData';
 
 
-const shuzu = ref([
-  {
-    title: '留言',
-    icon: 'Message',
-    path: '/message',
-    fun: () => {
-      console.log('点击了留言')
-    }
-  },
-  {
-    title: '设置',
-    icon: 'Setting',
-    path: '/setting',
-    fun: () => {
-      console.log('点击了设置')
-    }
-  },
-  {
-    title: '游戏',
-    icon: 'Monitor',
-    path: '/game',
-    children: [
-      {
-        title: '别踩白块儿',
-        path: '/game/snake',
-        fun: () => {
-          console.log('点击了别踩白块儿')
-        }
-      },
-      {
-        title: '俄罗斯方块',
-        path: '/game/tetris',
-        fun: () => {
-          console.log('点击了俄罗斯方块')
-        }
-      }
-    ]
-  },
-  {
-    title: '返回',
-    icon: 'HomeFilled',
-    path: '/',
-    fun: () => {
-      console.log('点击了返回')
-      router.push('/')
-    }
-  }
-])
+const titleData = useUserStore().titleData
 
+const userStore = useUserStore()
 
 //#region 通过滚动距离改变title的颜色和背景颜色
 let titleColor = ref('#fff')
@@ -154,21 +105,13 @@ onMounted(() => {
       font-style: italic;
       .title-tag{
         height: 50px;
-        margin-right: 10px;
+        margin-right: 20px;
         display: flex;
+        flex-shrink: 0;
         justify-content: center;
         align-items: center;
         color: #000000;
         font-family:'sans-serif';
-      }
-      .title-avatar{
-        width: 40px;
-        height: 40px;
-        margin-right: 30px;
-        :deep(.el-avatar){
-          width:35px;
-          height: 35px;
-        }
       }
     }
   }

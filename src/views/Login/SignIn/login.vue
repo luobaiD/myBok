@@ -1,19 +1,25 @@
 <template>
-  <div class="login-box">
+  <div class="animate__animated animate__fadeIn login-box ">
     <div class="login-title">
-      <p>登录</p>
+      <p>login</p>
     </div>
     <div class="login-id">
       <p>账号</p>
-      <input type="text" v-model="userData[0].content" placeholder="邮箱,手机号,自定义账号" autocomplete="off" ref="account"/>
+      <input type="text" v-model="userData[0].content" placeholder="邮箱,手机号,自定义账号" autocomplete="off" ref="account" @blur="handleAccountBlur"/>
+    </div>
+    <div class="error-hint">
+      <p  v-show="userData[0].state">{{ userData[0].error }}</p>
     </div>
     <div class="login-password">
       <p>密码</p>
-      <input type="password" v-model="userData[1].content" placeholder="请输入密码" autocomplete="new-password" ref="password"/>
+      <input type="password" v-model="userData[1].content" placeholder="请输入密码" autocomplete="new-password" ref="password" @blur="handlePasswordBlur"/>
     </div>
-    <div class="login-edit">
+    <div class="error-hint">
+      <p v-show="userData[1].state">{{ userData[1].error }}</p>
+    </div>
+    <!-- <div class="login-edit">
       <p>忘记密码 ?</p>
-    </div>
+    </div> -->
     <div class="login-button">
       <button @click="handleLogin">登录</button>
       <button @click="handleGuest">游客</button>
@@ -27,22 +33,58 @@
   import { useRouter } from 'vue-router';
   import { ElMessage } from 'element-plus'
   import { postlogin } from '@/api/login/login';
+  import 'animate.css';
+  import { lengthProvide, validateEmail } from '../../../utils/inputProvide';
 
   const router = useRouter()
   const userData = ref([
     {
       content: '',
       name: '账号',
-      type: 'email'
+      type: 'email',
+      state: false,
+      error: '请输入正确的邮箱格式'
     },
     {
       content: '',
       name: '密码',
-      type: 'password'
+      type: 'password',
+      state: false,
+      error: '密码长度应在8-12位之间'
     }
   ]) 
+  
+  /**
+   * 账号失焦验证
+   */
+  const handleAccountBlur = () => {
+    const account = userData.value[0].content;
+    // if(lengthProvide(account, 18, 12)){
+    //   userData.value[0].state = true;
+    //   userData.value[0].error = '邮箱的正确位数应为12~18位'
+    // }else{
+    //   userData.value[0].state = false;
+    // }
+    // if(validateEmail(account)){
+    //   console.log(account);
+    //   userData.value[0].state = true;
+    //   userData.value[0].error = '请输入正确的邮箱格式'
+    // }else{
+    //   console.log('邮箱格式正确');
+    //   userData.value[0].state = false;
+    // }
+  }
 
-
+  /**
+   * 密码失焦验证
+   */
+  const handlePasswordBlur = () => {
+    // const password = userData.value[1].content;
+    // const isValid = lengthProvide(password, 12, 8);
+    
+    // userData.value[1].state = isValid;
+    // console.log('当前密码状态：',userData.value[1].state);
+  }
 
   /**
    * 登录
@@ -66,6 +108,7 @@
       }
       idpassword[userData.value[i].type as keyof typeof idpassword] = userData.value[i].content
     } 
+    
     try {
       // 调用 postlogin 函数进行登录请求
       const res:any = await postlogin(idpassword);
@@ -94,6 +137,7 @@
       });
     }
   }
+
   /**
    * 游客
    */
@@ -107,12 +151,14 @@
     })
     router.push('/coge')
   }
+
   /**
    * 注册路由跳转
    */
   const handleRegister = () => {
     router.push('/login/sign')
   }
+
 </script>
 
 
@@ -122,7 +168,7 @@
     height: 300px;
     user-select: none;
     border-radius: 10px;
-    background-color: #b3c0d1;
+    background-color: #82a0c6a8;
     display: flex;
     flex-direction: column;
     .login-title{
@@ -133,17 +179,19 @@
       align-items: center;
       margin-top: 20px;
       p{
-        font-size: 30px;
+        color: #fff;
+        font-size: 33px;
         font-weight: bold;
       }
     }
     .login-id{
       width: 100%;
       height: 50px;
-      margin-top: 10px;
+      margin-top: 20px;
       display: flex;
       align-items: center;
       p{
+        color: #fff;
         font-size: 20px;
         margin-left: 40px;
       }
@@ -171,6 +219,7 @@
       display: flex;
       align-items: center;
       p{
+        color: #fff;
         font-size: 20px;
         margin-left: 40px;
       }
@@ -192,6 +241,19 @@
         -webkit-box-shadow: 0 0 0px 1000px white inset;
       }
     }
+    .error-hint{
+      width: 100%;
+      height: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      p{
+        font-size: 12px;
+        color: red;
+      }
+    }
+
+
     .login-edit{
       width: 100%;
       height: 40px;
@@ -209,6 +271,7 @@
     .login-button{
       width: 100%;
       height: 50px;
+      margin-top: 40px;
       padding-left: 50px;
       padding-right: 50px;
       display: flex;

@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="menu-bottom"></div>
-    <div class="menus">
+    <div class="menus animate__animated  animate__fadeIn">
       <div v-for="(item, index) in shuju.children" :key="index" class="menu-Options" @click="item.fun">
         {{ item.title }}
       </div>
@@ -28,6 +28,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import 'animate.css';
+
+
 const props = defineProps({
   shuju: {
     type: Object,
@@ -89,6 +92,7 @@ const props = defineProps({
       border-radius: 2px; /* 菜单边框圆角 */
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 菜单阴影 */
       z-index: 10; /* 确保菜单在其他元素之上 */
+      // animation: scale-up-ver-top 0.5s ;
       .menu-Options{
         width: 100%;
         height: 30px;
@@ -100,6 +104,20 @@ const props = defineProps({
       }
       .menu-Options:hover{
         background-color: #409EFF;
+      }
+    }
+    @keyframes scale-up-ver-top {
+      0% {
+        -webkit-transform: scaleY(0.4);
+                transform: scaleY(0.4);
+        -webkit-transform-origin: 100% 0%;
+                transform-origin: 100% 0%;
+      }
+      100% {
+        -webkit-transform: scaleY(1);
+                transform: scaleY(1);
+        -webkit-transform-origin: 100% 0%;
+                transform-origin: 100% 0%;
       }
     }
 

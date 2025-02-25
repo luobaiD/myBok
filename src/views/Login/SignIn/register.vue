@@ -1,5 +1,5 @@
 <template>
-  <div class="signIn-box">
+  <div class="animate__animated animate__fadeIn animate__zoomIn signIn-box">
     <div class="signIn-title">
       <p>注册</p>
     </div>
@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
+import 'animate.css';
 // import '@/assets/Css/inputsCss.css'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
