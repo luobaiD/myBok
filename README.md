@@ -7,11 +7,11 @@ git@github.com:luobaiD/myBok.git
 ```
 yarn dev
 ```
-## 3. 主体内容
+## 3. 数据
 ```
-app->views->(Coge | Home |Login) - index.vue
+https://luxine.cn/api
 ```
-## 4. 数据
+## 4. 打包
 ```
-账号数据---平台数据---帖子数据
+yarn build
 ```

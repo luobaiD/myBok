@@ -1,5 +1,7 @@
 import {defineStore} from 'pinia';
+import { postlogout } from '@/api/login/logout';
 import router from '@/router/index';
+import { ElMessage } from 'element-plus'
 
 export const useUserStore = defineStore('user', {
   // 定义状态，返回一个函数，该函数返回一个对象，对象中的属性即为状态
@@ -70,6 +72,14 @@ export const useUserStore = defineStore('user', {
           }
         },
         {
+          title: 'Ai',
+          icon: 'Connection',
+          path: '/article',
+          fun: () => {
+            console.log('点击了Ai') 
+          }
+        },
+        {
           title: '辩论',
           icon: 'Scissor',
           path: '/',
@@ -125,9 +135,40 @@ export const useUserStore = defineStore('user', {
           title: '登录',
           icon: 'Avatar',
           path: '/login',
-          fun: () => {
-            router.push('/login')
-          }
+          children: [
+            {
+              title: '切换账号',
+              path: '/login',
+              fun: () => {
+                router.push('/login')
+              }
+            }, 
+            {
+              title: '退出登录',
+              fun: async () => {
+                try{
+                  const tokendata = {
+                    token: localStorage.getItem('token')
+                  }
+                  const res:any = await postlogout(tokendata);            
+                  if(res.code === 200){
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('account');
+                    ElMessage({
+                      showClose: true,
+                      message: '退出成功',
+                      type: 'success', 
+                      center: true,
+                      duration: 2000
+                    })
+                    router.push('/login')
+                  }
+                } catch(err){
+                  console.log('退出失败，请检查网络连接') 
+                }
+              }
+            }
+          ]
         }
       ]
     };

@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { UserFilled } from '@element-plus/icons-vue'
-import router from '@/router/index';
+import { useRouter } from 'vue-router';
 import  NavMenu  from '@/components/tools/NavMenu.vue';
 import Search from '@/components/tools/Search.vue';
 import 'animate.css';
@@ -29,6 +29,7 @@ import { useUserStore } from '@/stores/userStore/myData';
 
 const titleData = useUserStore().titleData
 
+const router = useRouter()
 const userStore = useUserStore()
 
 //#region 通过滚动距离改变title的颜色和背景颜色

@@ -122,15 +122,22 @@
           center: true,
           duration: 2000
         })
+        console.log(res.data);
         router.push('/') 
-      }
-      
+      } else if(res.code == 40102){
+        // ElMessage({
+        //   showClose: true,
+        //   message: '密码错误',
+        //   type:'error', 
+        //   center: true,
+        //   duration: 2000
+        // })
+        console.log(res);        
+      }  
     } catch (error) {
-      // 捕获并处理异常，给出错误提示
-      console.log(error);
       ElMessage({
         showClose: true,
-        message: '登录过程中出现错误，请稍后重试',
+        message: '登录失败,请检查网络连接',
         type: 'error',
         center: true,
         duration: 3000
