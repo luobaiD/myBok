@@ -11,7 +11,7 @@ export const lengthProvide = (str: string, max: number, min: number = 0):boolean
   if (typeof str !== 'string') return true;
   const lon = str.length >= min && str.length <= max
   // 返回验证结果
-  return !lon;
+  return lon;
 };
 
 /**

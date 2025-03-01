@@ -161,7 +161,7 @@ import { postCaptcha, postCaptchaVerify } from '../../../api/login/chptCha';
 import { register } from '../../../api/login/register'
 
 
-const step = ref(3);
+const step = ref(1);
 const router = useRouter();
 interface Data {
   email: string;

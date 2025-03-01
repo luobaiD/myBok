@@ -30,7 +30,7 @@
                 autocomplete="new-password">
         </div>
         <div class="error">
-          <span v-show="ispassword && passwordwatch">请输入8-16位的密码</span>
+          <span v-show="!ispassword && passwordwatch">请输入8-16位的密码</span>
         </div>
       </div>
     </div>
@@ -86,9 +86,7 @@
     }
   });
   watchEffect(() => {
-    if(passwordwatch.value){
-      ispassword.value = lengthProvide(userData.value[1].content, 8, 16); 
-    }
+    ispassword.value = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,20}$/.test(userData.value[1].content); 
   })
 
   /**
