@@ -5,13 +5,21 @@
     <div class="input-box">
       <div>
         <p>邮箱</p>
-        <input type="text" v-model="userCreate.email" placeholder="email" autocomplete="off-unique-value">
-        <div><span v-show="!isemail">请输入正确的邮箱格式</span></div>   
+        <input type="text" v-model="userCreate.email" 
+              placeholder="email" 
+              @input="emailwatch = true"
+              @blur="emailwatch = true"
+              autocomplete="off-unique-value">
+        <div><span v-show="!isemail && emailwatch">请输入正确的邮箱格式</span></div>   
       </div>
       <div>
         <p>昵称</p>
-        <input type="text" v-model="userCreate.nickname" placeholder="输入你的昵称" autocomplete="off-unique-value">
-        <div><span v-show="!isnickname">用户名必须为2~8个字符</span></div>
+        <input type="text" v-model="userCreate.nickname" 
+              placeholder="输入你的昵称" 
+              @input="nicknamewatch = true"
+              @blur="nicknamewatch = true"
+              autocomplete="off-unique-value">
+        <div><span v-show="!isnickname && nicknamewatch">用户名必须为2~8个字符</span></div>
       </div>
     </div>
     <div class="back-login">
@@ -35,8 +43,12 @@
     <div class="title">我们向您发送了一个验证码</div>
     <div class="input-box">
       <span>{{ `在下面输入${userCreate.email}的验证码` }}</span>
-      <input type="text" v-model="userCreate.verify" placeholder="请输入验证码" autocomplete="off">
-      <div><span v-show="isverify">验证码格式为6位</span></div>
+      <input type="text" v-model="userCreate.verify" 
+            placeholder="请输入验证码" 
+            @input="verufywatch = true"
+            @blur="verufywatch = true"
+            autocomplete="off">
+      <div><span v-show="isverify && verufywatch">验证码格式为6位</span></div>
     </div>
     <div class="send-again">
       <p>没有收到邮件?</p>
@@ -67,6 +79,7 @@
               autocomplete="off" 
               placeholder="请输入手机号" 
               @input="handlePhoneInput"
+              @blur="thirdwatch = true"
               maxlength="11">
       </div>
       <div class="birth">
@@ -74,27 +87,27 @@
           <el-icon><Calendar /></el-icon>
         </p>
         <div>
-          <input type="text" v-model="year" placeholder="年">
-          <input type="text" v-model="month" placeholder="月">
-          <input type="text" v-model="day" placeholder="日">
+          <input type="text" v-model="year" placeholder="年" @blur="thirdwatch = true">
+          <input type="text" v-model="month" placeholder="月" @blur="thirdwatch = true">
+          <input type="text" v-model="day" placeholder="日" @blur="thirdwatch = true">
         </div>
       </div>
       <div class="redundant">
         <div class="sex">
           <p>性别</p>
-          <select v-model="userCreate.sex">
+          <select v-model="userCreate.sex"  @blur="thirdwatch = true">
             <option value="male">男</option>
             <option value="female">女</option>
           </select>
         </div>
         <div class="job">
           <p>你当前职业是?</p>
-          <input v-model="userCreate.job" type="text">
+          <input v-model="userCreate.job" type="text"  @blur="thirdwatch = true">
         </div>
       </div>
     </div>
     <div class="next-step">
-      <button @click="thirdBt">{{ '下一步' }}</button>
+      <button @click="thirdBt">{{ thirdbttext }}</button>
     </div>
   </div>
 
@@ -107,16 +120,24 @@
     <div class="input-box">
       <div>
         <p>请创建一个8~20位的密码</p>
-        <input type="password" v-model="userCreate.password" placeholder="请输入密码" autocomplete="new-password">
+        <input type="password" v-model="userCreate.password" 
+              placeholder="请输入密码" 
+              @input="creatPasswordwatch = true"
+              @blur="creatPasswordwatch = true"
+              autocomplete="new-password">
         <div class="error">
-          <span v-show="creatPassword">{{ passwordError }}</span>
+          <span v-show="creatPassword && creatPasswordwatch">{{ passwordError }}</span>
         </div>
       </div>
       <div class="error">
         <p>请再次输入密码</p>
-        <input type="password" v-model="userCreate.password2" placeholder="请确认密码" autocomplete="new-password">
+        <input type="password" v-model="userCreate.password2" 
+              placeholder="请确认密码" 
+              @input="ispasswordwatch = true"
+              @blur="ispasswordwatch = true"
+              autocomplete="new-password">
         <div class="error">
-          <span v-show="!ispassword">两次密码不一致</span>
+          <span v-show="ispassword && ispasswordwatch">两次密码不一致</span>
         </div>
       </div>
     </div>
@@ -140,7 +161,7 @@ import { postCaptcha, postCaptchaVerify } from '../../../api/login/chptCha';
 import { register } from '../../../api/login/register'
 
 
-const step = ref(1);
+const step = ref(3);
 const router = useRouter();
 interface Data {
   email: string;
@@ -169,7 +190,9 @@ const userCreate = ref<Data>({
 
 //#region 1
 const isemail = ref(false);
+const emailwatch = ref()
 const isnickname = ref(false);
+const nicknamewatch = ref()
 watchEffect(() => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
   isemail.value = emailRegex.test(userCreate.value.email);
@@ -229,6 +252,7 @@ const firstBt = async () => {
 
 //#region 2
 const isverify = ref(false);
+const verufywatch = ref()
 watchEffect(() => {
   if(userCreate.value.verify.length === 6){
     isverify.value = false;
@@ -290,6 +314,15 @@ const secondBt = async () => {
 
 //#region 3
 // 处理手机号输入
+const thirdwatch = ref(false)
+const thirdbttext = ref('跳过')
+watchEffect(() => {
+  if(thirdwatch.value){
+    thirdbttext.value = '完成注册'
+  } else {
+    thirdbttext.value = '跳过'
+  }
+})
 const handlePhoneInput = () => {
   if (userCreate.value.phone !== null) {
     userCreate.value.phone = userCreate.value.phone.replace(/[^\d]/g, '');
@@ -319,7 +352,9 @@ const thirdBt = () => {
 
 //#region 4
 const creatPassword = ref(false);
+const creatPasswordwatch = ref()
 const ispassword = ref(false);
+const ispasswordwatch = ref()
 let passwordError = ref('密码格式为8~20位')
 
 // 密码校验规则
@@ -381,10 +416,6 @@ const sendregister = async () => {
   
 }
 //#endregion
-
-onMounted(() => {
-
-})
 </script>
 
 <style scoped lang="scss">
@@ -749,7 +780,7 @@ onMounted(() => {
     .is-agreement{
       width: 330px;
       height: 20px;
-      margin-top: 30px;
+      margin-top: 10px;
       margin-left: 25px;
       display: flex;
       input{

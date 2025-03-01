@@ -1,6 +1,7 @@
 #mybook
 ## 1. 安装
 ```
+https://github.com/luobaiD/myBok.git
 git@github.com:luobaiD/myBok.git
 ```
 ## 2. 运行

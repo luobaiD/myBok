@@ -32,20 +32,9 @@ http.interceptors.request.use(
 http.interceptors.response.use(
   (response) => {
     // 可以在这里对响应数据进行一些处理
-      if(response.status!==200){
-        return Promise.reject("http错误");
-      }
-
       let code = response.data.code;
-      if(code === 401 || code === 40104 ||code === 40105){
-        throw new Error("登录过期");
-      }
-      if(code === 40102){
-        throw new Error("密码错误");
-      }
       if(code!==200){
-         throw new Error(response.data.msg);
-        ;
+        return response.data;
       }
     return response.data;
   },

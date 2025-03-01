@@ -3,33 +3,54 @@
     <div class="login-title">
       <p>login</p>
     </div>
-    <div class="login-id">
-      <p>账号</p>
-      <input type="text" v-model="userData[0].content" placeholder="邮箱,手机号,自定义账号" autocomplete="off" ref="account" @blur="handleAccountBlur"/>
-    </div>
-    <div class="error-hint">
-      <p  v-show="userData[0].state">{{ userData[0].error }}</p>
-    </div>
-    <div class="login-password">
-      <p>密码</p>
-      <input type="password" v-model="userData[1].content" placeholder="请输入密码" autocomplete="new-password" ref="password" @blur="handlePasswordBlur"/>
-    </div>
-    <div class="error-hint">
-      <p v-show="userData[1].state">{{ userData[1].error }}</p>
+    <div class="login-account">
+      <!-- 账号 -->
+      <div class="login-email">
+        <div class="text">
+          <span>账号</span>
+          <input type="text" placeholder="请输入邮箱" 
+                v-model="userData[0].content" 
+                autocomplete="off-unique-value"
+                @input="emailwatch = true"
+                @blur="emailwatch = true"
+          >
+        </div>
+        <div class="error">
+          <span v-show="!isemail && emailwatch">请输入正确的邮箱</span>
+        </div>
+      </div>
+      <!-- 密码 -->
+      <div class="login-password">
+        <div class="text">
+          <span>密码</span>
+          <input type="password" placeholder="请输入密码" 
+                v-model="userData[1].content" 
+                @input="passwordwatch = true"
+                @blur="passwordwatch = true"
+                autocomplete="new-password">
+        </div>
+        <div class="error">
+          <span v-show="ispassword && passwordwatch">请输入8-16位的密码</span>
+        </div>
+      </div>
     </div>
     <!-- <div class="login-edit">
       <p>忘记密码 ?</p>
     </div> -->
     <div class="login-button">
-      <button @click="handleLogin">登录</button>
-      <button @click="handleGuest">游客</button>
-      <button @click="handleRegister">注册</button>
+      <button @click="handleLogin" class="login-bt">登录</button>
+      <span>or</span>
+      <div class="notlogin-bt">
+        <button @click="handleGuest">游客</button>
+        <button @click="handleRegister">注册</button>
+      </div>
+      
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, watchEffect } from 'vue';
   import { useRouter } from 'vue-router';
   import { ElMessage } from 'element-plus'
   import { postlogin } from '@/api/login/login';
@@ -42,106 +63,92 @@
       content: '',
       name: '账号',
       type: 'email',
-      state: false,
+      state: true,
       error: '请输入正确的邮箱格式'
     },
     {
       content: '',
       name: '密码',
       type: 'password',
-      state: false,
+      state: true,
       error: '密码长度应在8-12位之间'
     }
   ]) 
   
-  /**
-   * 账号失焦验证
-   */
-  const handleAccountBlur = () => {
-    const account = userData.value[0].content;
-    // if(lengthProvide(account, 18, 12)){
-    //   userData.value[0].state = true;
-    //   userData.value[0].error = '邮箱的正确位数应为12~18位'
-    // }else{
-    //   userData.value[0].state = false;
-    // }
-    // if(validateEmail(account)){
-    //   console.log(account);
-    //   userData.value[0].state = true;
-    //   userData.value[0].error = '请输入正确的邮箱格式'
-    // }else{
-    //   console.log('邮箱格式正确');
-    //   userData.value[0].state = false;
-    // }
-  }
-
-  /**
-   * 密码失焦验证
-   */
-  const handlePasswordBlur = () => {
-    // const password = userData.value[1].content;
-    // const isValid = lengthProvide(password, 12, 8);
-    
-    // userData.value[1].state = isValid;
-    // console.log('当前密码状态：',userData.value[1].state);
-  }
+  const emailwatch = ref()
+  const passwordwatch = ref()
+  const isemail = ref(false)
+  const ispassword = ref(false)
+  watchEffect(() => {
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if(emailwatch.value){
+      isemail.value = emailRegex.test(userData.value[0].content); 
+    }
+  });
+  watchEffect(() => {
+    if(passwordwatch.value){
+      ispassword.value = lengthProvide(userData.value[1].content, 8, 16); 
+    }
+  })
 
   /**
    * 登录
    */
-  const handleLogin =async () => {
-    const idpassword = {
-      email: '',
-      password: ''
-    }
-    // 检查是否有数据未填写
-    for(let i=0;i < userData.value.length;i++){
-      if(!userData.value[i].content){
-        ElMessage({
-          showClose: true,
-          message:  `请输入${userData.value[i].name}`,
-          type:'error',
-          center: true,
-          duration: 2000
-        })
-        return
+  const handleLogin = async () => {
+    if (isemail.value && ispassword.value) {
+      const idpassword = {
+        email: userData.value[0].content,
+        password: userData.value[1].content
       }
-      idpassword[userData.value[i].type as keyof typeof idpassword] = userData.value[i].content
-    } 
-    
-    try {
-      // 调用 postlogin 函数进行登录请求
-      const res:any = await postlogin(idpassword);
-      if(res.code == 200){
-        localStorage.setItem('token', res.data.token)
-        localStorage.setItem('account', res.data.userInfo.email)
+      try {
+        // 调用 postlogin 函数进行登录请求
+        const res:any = await postlogin(idpassword);
+        console.log(res);
+        if(res.code == 200){
+          localStorage.setItem('token', res.data.token)
+          localStorage.setItem('account', res.data.userInfo.email)
+          ElMessage({
+            showClose: true,
+            message: '登录成功',
+            type: 'success', 
+            center: true,
+            duration: 2000
+          })
+          router.push('/') 
+        }else if(res.code == 40101){
+          ElMessage({
+            showClose: true,
+            message: res.msg,
+            type:'error',
+            center: true,
+            duration: 2000
+          }) 
+        }else if(res.code == 40102){
+          ElMessage({
+            showClose: true,
+            message: res.msg,
+            type:'error',
+            center: true,
+            duration: 2000
+          }) 
+        }
+      } catch (error) {
         ElMessage({
           showClose: true,
-          message: '登录成功',
-          type: 'success', 
+          message: '登录失败,请检查网络连接',
+          type: 'error',
           center: true,
-          duration: 2000
-        })
-        console.log(res.data);
-        router.push('/') 
-      } else if(res.code == 40102){
-        // ElMessage({
-        //   showClose: true,
-        //   message: '密码错误',
-        //   type:'error', 
-        //   center: true,
-        //   duration: 2000
-        // })
-        console.log(res);        
-      }  
-    } catch (error) {
+          duration: 3000
+        });
+      }
+    } else {
       ElMessage({
         showClose: true,
-        message: '登录失败,请检查网络连接',
+        message: '请输入正确的邮箱和密码',
         type: 'error',
         center: true,
-        duration: 3000
-      });
+        duration: 3000 
+      })
     }
   }
 
@@ -166,18 +173,22 @@
     router.push('/login/sign')
   }
 
+onMounted(() => {
+ 
+})
 </script>
 
 
 <style scoped lang=scss>
   .login-box{
     width: 450px;
-    height: 300px;
+    height: 420px;
     user-select: none;
     border-radius: 10px;
-    background-color: #82a0c6a8;
+    background-color: rgba(66, 61, 61, 0.638);
     display: flex;
     flex-direction: column;
+    align-items: center;
     .login-title{
       width: 100%;
       height: 50px;
@@ -191,105 +202,116 @@
         font-weight: bold;
       }
     }
-    .login-id{
-      width: 100%;
-      height: 50px;
-      margin-top: 20px;
-      display: flex;
-      align-items: center;
-      p{
-        color: #fff;
-        font-size: 20px;
-        margin-left: 40px;
+
+    .login-account{
+      width: 80%;
+      height: 200px;
+      display: flex; 
+      flex-direction: column;
+      .login-email{
+        width: 100%;
+        height: 60px;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column; 
+        .text{
+          width: 100%;
+          height: 40px;
+          border-radius: 20px;
+          span{
+            font-size: 20px;
+            color: aliceblue;
+            margin-right: 20px;
+          }
+          input{
+            width: 80%;
+            height: 100%;
+            border-radius: 10px; 
+            font-size: 15px;
+            padding-left: 20px;
+            padding-right: 20px;
+            outline: none;
+          }
+        }
+        .error{
+          width: 100%;
+          height: 20px;
+          color: red;
+          font-size: 12px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-left: 20px;
+        }
       }
-      input{
-        width: 300px;
-        height: 30px;
-        border: none;
-        border-radius: 5px;
-        padding-left: 10px;
-        margin-left: 20px;
-      }
-      input:focus-visible{
-        outline: none;
-      }
-      input:-webkit-autofill {
-        -webkit-box-shadow: 0 0 0px 1000px white inset;
-      }
-      input:-webkit-autofill:focus {
-        -webkit-box-shadow: 0 0 0px 1000px white inset;
-      }
-    }
-    .login-password{
-      width: 100%;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      p{
-        color: #fff;
-        font-size: 20px;
-        margin-left: 40px;
-      }
-      input{
-        width: 300px;
-        height: 30px;
-        border: none;
-        border-radius: 5px;
-        padding-left: 10px;
-        margin-left: 20px;
-      }
-      input:focus-visible{
-        outline: none;
-      }
-      input:-webkit-autofill {
-        -webkit-box-shadow: 0 0 0px 1000px white inset;
-      }
-      input:-webkit-autofill:focus {
-        -webkit-box-shadow: 0 0 0px 1000px white inset;
-      }
-    }
-    .error-hint{
-      width: 100%;
-      height: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      p{
-        font-size: 12px;
-        color: red;
+      .login-password{
+        width: 100%;
+        height: 60px;
+        margin-top: 20px;
+        display: flex; 
+        flex-direction: column;
+        .text{
+          width: 100%;
+          height: 40px;
+          border-radius: 20px;
+          span{
+            font-size: 20px;
+            color: aliceblue;
+            margin-right: 20px;
+          }
+          input{
+            width: 80%;
+            height: 100%;
+            border-radius: 10px; 
+            font-size: 15px;
+            padding-left: 20px;
+            padding-right: 20px;
+            outline: none;
+          }
+        }
+       .error{
+          width: 100%;
+          height: 20px;
+          color: red;
+          font-size: 12px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-left: 20px;
+        }
       }
     }
 
 
-    .login-edit{
-      width: 100%;
-      height: 40px;
-      display: flex;
-      justify-content: flex-end;
-      p{
-        font-size: 12px;
-        margin-right: 50px;
-      }
-      p:hover{
-        color: #e3690c;
-        cursor: pointer;
-      }
-    }
     .login-button{
-      width: 100%;
-      height: 50px;
-      margin-top: 40px;
-      padding-left: 50px;
-      padding-right: 50px;
+      width: 80%;
       display: flex;
-      justify-content: space-around;
-      button{
-        width: 80px;
-        height: 30px;
+      flex-direction: column;
+      align-items: center;
+      .login-bt{
+        width: 80%;
+        height: 40px;
+        border-radius: 20px;
         border: none;
-        background-color: #ecf1f3;
-        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-        border-radius: 5px;
+      }
+      span{
+        width: 100%;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: rgb(255, 255, 255);
+      }
+      .notlogin-bt{
+        width: 80%;
+        height: 43px;
+        display: flex;
+        justify-content: space-between;
+        button{
+          width: 45%;
+          height: 100%;
+          border-radius: 20px;
+        }
       }
       button:hover{
         background-color: #76b6a8;
